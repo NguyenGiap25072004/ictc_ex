@@ -1,0 +1,139 @@
+*** Verification Plan ***
+
+1 - RESET_Check: Verify asynchronous reset (RST_N).
+    - Scenario:
+        1.1 Start simulation with RST_N low for several clock cycles.
+        1.2 Observe TXD output during reset assertion.
+        1.3 De-assert RST_N (bring it high).
+    - Pass condition: TXD remains in the idle state (logic 1 assumed) while RST_N is low.
+    - Bug: NO BUG
+
+2 - IDLE_State: Verify TXD idle state (logic 1 assumed).
+    - Scenario:
+        2.1 After reset is de-asserted.
+        2.2 Keep VALID low.
+        2.3 Observe TXD for several clock cycles.
+    - Pass condition: TXD remains high (logic 1).
+    - Bug: NO BUG
+
+3 - DataCapture_Basic_NoParity: Verify basic data capture and transmission with no parity.
+    - Scenario:
+        3.1 After reset, set PARITY_MODE = 2'b00.
+        3.2 Apply DATA_IN = 8'h55.
+        3.3 Assert VALID high for one clock cycle.
+        3.4 Monitor TXD output.
+    - Pass condition: TXD transmits the 8 data bits 01010101 (LSB first) correctly, each bit lasting one clock cycle. Total bits = 8.
+    - Bug: NO BUG
+
+4 - Timing_1ClkPerBit: Verify each transmitted bit duration.
+    - Scenario:
+        4.1 During any data transmission test case (e.g., Test 3).
+        4.2 Measure the duration of each bit transmitted on TXD using a waveform viewer or simulator measurement tools.
+    - Pass condition: Each bit on TXD has a duration equal to one CLK period (20ns for 50MHz clock).
+    - Bug: NO BUG
+
+5 - BitOrder_LSBFirst: Verify LSB-first transmission order.
+    - Scenario:
+        5.1 After reset, set PARITY_MODE = 2'b00.
+        5.2 Apply DATA_IN = 8'hA1 (Binary 10100001).
+        5.3 Assert VALID high for one clock cycle.
+        5.4 Monitor the sequence of bits on TXD.
+    - Pass condition: The first bit transmitted on TXD is 1 (DATA_IN[0]), the second is 0 (DATA_IN[1]), ..., the eighth bit is 1 (DATA_IN[7]).
+    - Bug: NO BUG
+
+6 - Parity_None_00: Verify no parity mode (PARITY_MODE = 2'b00).
+    - Scenario:
+        6.1 After reset, set PARITY_MODE = 2'b00.
+        6.2 Apply DATA_IN = 8'hC3 (Binary 11000011).
+        6.3 Assert VALID high for one clock cycle.
+        6.4 Monitor TXD output and count transmitted bits.
+    - Pass condition: TXD transmits exactly 8 data bits (11000011 LSB first). No extra bit is transmitted.
+    - Bug: NO BUG
+
+7 - Parity_None_11: Verify no parity mode (PARITY_MODE = 2'b11).
+    - Scenario:
+        7.1 After reset, set PARITY_MODE = 2'b11.
+        7.2 Apply DATA_IN = 8'h3C (Binary 00111100).
+        7.3 Assert VALID high for one clock cycle.
+        7.4 Monitor TXD output and count transmitted bits.
+    - Pass condition: TXD transmits exactly 8 data bits (00111100 LSB first). No extra bit is transmitted.
+    - Bug: NO BUG
+
+8 - Parity_Odd_Calc1: Verify Odd Parity mode (PARITY_MODE = 2'b01), expected parity bit = 1.
+    - Scenario:
+        8.1 After reset, set PARITY_MODE = 2'b01.
+        8.2 Apply DATA_IN = 8'h55 (Binary 01010101 - 4 ones, even).
+        8.3 Assert VALID high for one clock cycle.
+        8.4 Monitor TXD output.
+    - Pass condition: TXD transmits 8 data bits (01010101 LSB first) followed by a parity bit = 1. Total bits = 9.
+    - Bug: NO BUG
+
+9 - Parity_Odd_Calc0: Verify Odd Parity mode (PARITY_MODE = 2'b01), expected parity bit = 0.
+    - Scenario:
+        9.1 After reset, set PARITY_MODE = 2'b01.
+        9.2 Apply DATA_IN = 8'hA3 (Binary 10100011 - 5 ones, odd).
+        9.3 Assert VALID high for one clock cycle.
+        9.4 Monitor TXD output.
+    - Pass condition: TXD transmits 8 data bits (11000101 LSB first) followed by a parity bit = 0. Total bits = 9.
+    - Bug: NO BUG
+
+10 - Parity_Even_Calc0: Verify Even Parity mode (PARITY_MODE = 2'b10), expected parity bit = 0.
+    - Scenario:
+        10.1 After reset, set PARITY_MODE = 2'b10.
+        10.2 Apply DATA_IN = 8'hC3 (Binary 11000011 - 4 ones, even).
+        10.3 Assert VALID high for one clock cycle.
+        10.4 Monitor TXD output.
+    - Pass condition: TXD transmits 8 data bits (11000011 LSB first) followed by a parity bit = 0. Total bits = 9.
+    - Bug: NO BUG
+
+11 - Parity_Even_Calc1: Verify Even Parity mode (PARITY_MODE = 2'b10), expected parity bit = 1.
+    - Scenario:
+        11.1 After reset, set PARITY_MODE = 2'b10.
+        11.2 Apply DATA_IN = 8'hB4 (Binary 10110100 - 5 ones, odd).
+        11.3 Assert VALID high for one clock cycle.
+        11.4 Monitor TXD output.
+    - Pass condition: TXD transmits 8 data bits (00101101 LSB first) followed by a parity bit = 1. Total bits = 9.
+    - Bug: NO BUG
+
+12 - VALID_MultiCycle: Check behavior when VALID is asserted for multiple clock cycles.
+    - Scenario:
+        12.1 After reset, set PARITY_MODE = 2'b00, DATA_IN = 8'h1A.
+        12.2 Assert VALID high for 3 consecutive clock cycles.
+        12.3 Monitor TXD output.
+    - Pass condition: DUT should ideally capture data only on the first clock edge VALID is high and transmit only one frame for 8'h1A. (Alternative: DUT might transmit multiple frames - need to check behavior).
+    - Bug: NO BUG
+
+13 - BackToBack_Valid: Check back-to-back transmissions.
+    - Scenario:
+        13.1 Transmit DATA_IN = 8'h11 with PARITY_MODE = 2'b00 (VALID high for 1 cycle).
+        13.2 Wait for the transmission to complete (e.g., 8 clock cycles after start).
+        13.3 Immediately assert VALID high for 1 cycle with DATA_IN = 8'h22 and PARITY_MODE = 2'b01.
+        13.4 Monitor TXD for both transmissions.
+    - Pass condition: The second transmission starts correctly after the first one finishes and transmits the correct data (8'h22) with odd parity.
+    - Bug: NO BUG
+
+14 - VALID_Deassert_Mid: (Optional/Difficult without knowing internal logic) Check VALID de-assertion if VALID was high longer than 1 cycle.
+    - Scenario:
+        14.1 Assert VALID high.
+        14.2 After 1 or 2 clocks (while VALID is still high), de-assert VALID.
+        14.3 Observe if transmission started/completes correctly.
+    - Pass condition: Depends on exact specification (usually completes transmission if started). Likely skip or note behavior.
+    - Bug: NO BUG
+
+15 - RESET_Mid_Transmit: Verify reset during transmission.
+    - Scenario:
+        15.1 Start a data transmission (e.g., DATA_IN=8'hCC, PARITY_MODE=2'b10).
+        15.2 After a few bits have been transmitted (e.g., 4 clock cycles).
+        15.3 Assert RST_N low.
+        15.4 Observe TXD immediately.
+        15.5 De-assert RST_N after a few cycles.
+    - Pass condition: TXD immediately returns to the idle state (logic 1) upon RST_N assertion, and the transmission stops.
+    - Bug: NO BUG
+
+16 - PARITY_Mode_Change: Verify changing parity mode affects subsequent transmissions.
+    - Scenario:
+        16.1 Transmit DATA_IN = 8'h5A with PARITY_MODE = 2'b10 (Even). Check TXD.
+        16.2 Change PARITY_MODE = 2'b01 (Odd).
+        16.3 Transmit the same DATA_IN = 8'h5A again. Check TXD.
+    - Pass condition: The first transmission uses even parity, the second uses odd parity, and both are calculated correctly for 8'h5A.
+    - Bug: NO BUG
