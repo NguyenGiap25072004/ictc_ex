@@ -1,0 +1,89 @@
+1. It's a type of integrated circuit customized for a particular use rather than general-purpose use. 
+ASICs are designed to perform a specific task or set of tasks, which could range from simple functions like managing power in electronic devices to complex computations like those required for cryptocurrency mining.
+ASICs are often used in situations where software solutions are not efficient or suitable for the task.
+2. 
+Stage 1: Customer requirements and architecture design: The requirements and applications are analyzed to form the chip system architecture
++ This initial stage focuses on understanding the intended purpose and functionality of the ASIC.
++ Analyze Requirements & Applications: Customer needs, target applications, performance goals (speed, power, area), features, and interfaces are gathered and analyzed thoroughly.
++ Form Chip System Architecture: Based on the requirements, the overall structure of the chip is defined. The design is partitioned into major functional blocks, and the interactions and interfaces between these blocks are specified. This forms the high-level blueprint for the chip.
+Stage 2: ASIC Design: 
+- Front-End: Focuses on the logical or functional aspects of the design.
++ RTL Design: Design engineers write code using a Hardware Description Language (HDL), such as Verilog or VHDL, to describe the chip's behavior at the Register Transfer Level (RTL). This code defines the registers and the combinational logic that processes data between them, effectively implementing the architecture defined earlier.
++ Design Verification: Verification engineers rigorously test the functional correctness of the RTL code before it's physically implemented. They create simulation environments (testbenches), write test cases based on the specification and verification plan, run simulations to execute these tests, debug any failures found (working with RTL designers), and measure functional and code coverage to ensure the design behaves as intended according to the specification.
+- Back-End: Focuses on transforming the logical design into a physical layout ready for manufacturing. Include: DFT/STA/PD,..
++ Synthesis (Often the bridge between Front-End and Back-End): The verified RTL code is translated by synthesis tools into a gate-level netlist, which is a representation of the design using basic logic gates (like AND, OR, Flip-Flops) from a specific technology library provided by the silicon foundry.
++ Design for Testability (DFT): Special logic structures (e.g., scan chains) are inserted into the gate-level netlist. These structures don't change the chip's core function but make it much easier to test for manufacturing defects after the chip is fabricated.
++ Physical Design (PD): This involves multiple steps to create the physical layout of the chip like Floorplanning, Placement, Clock Tree Synthesis (CTS), Routing
++ Static Timing Analysis (STA): After physical design, sophisticated tools analyze all timing paths within the chip layout to verify that the design will operate correctly at the target clock frequency and that there are no setup or hold time violations.
++ Physical Verification: Final checks like DRC (Design Rule Check) ensure the layout adheres to the foundry's manufacturing rules, and LVS (Layout Versus Schematic) confirms the layout accurately reflects the synthesized gate-level netlist.
+Stage 3: Chip validation: 
+- Tape-out: The final, verified physical layout data (usually in GDSII format) is sent to the semiconductor foundry for manufacturing (fabrication).
+- Silicon Bring-up & Validation: Once the physical silicon chips return from the foundry, they undergo testing in a lab environment. Engineers power up the chips and run tests (often using FPGAs for prototyping or specialized test equipment) to validate that the actual hardware works according to the original specifications in real-world conditions. This step confirms the success of the entire design and manufacturing process.
+3. The inputs for DV engineers are : 
+- Design Specification: This documentation will help DV engineers understand how RTL engineers construct designs, thereby enabling them to envision the points that need to be verified.
+- SOC System Specification: This document is used to describe the functionality of all functional blocks within the SoC. This documentation will help DV engineers understand the position of IPs within the SoC, as well as how to configure related functional blocks.
+- Customer Requirement Specification: The requirements from the customer may be misunderstood or incomplete by RTL Design engineers. Therefore, DV engineers must also refer to and verify whether the current design adequately fulfills the customer's requirements.
+- Verification Specification: Written by DV engineers to express the testing ideas, a test document typically includes the following contents:
++ Basic goals and functions to be tested.
++ Testing scope: whether it's at the IP level or system level.
++ Testing methods: description of the methods used for testing (direct test, random test, formal test).
++ Test environment specification: block diagram, description of functional blocks in the environment, interconnections between blocks, etc.
+4. The activity of DV after getting input from the RTL designer is: 
+- Create Verification Specification and Plan: 
++ Written by DV engineers to express the testing ideas, a test document typically includes the following contents:
+▪ Basic goals and functions to be tested.
+▪ Testing scope: whether it's at the IP level or system level.
+▪ Testing methods: description of the methods used for testing (direct test, random test, formal test).
+▪ Test environment specification: block diagram, description of functional blocks in the environment, interconnections between blocks, etc.
++ Verification Plan: A detailed document describing the plan and methods for verifying that the SoC meets functional, performance, and reliability requirements.
+▪ Verification item list: list of items that needed to test
+▪ Verification method for each item: Depending on each item, DV engineers will choose the appropriate testing method.
+▪ Test description: This section will clearly demonstrate how to test the item, including what inputs need to be provided, how related IPs should be configured, how to observe the outputs, and what criteria need to be met to fulfill the requirements.
+▪ Classification: Depending on the importance of each item, engineers will plan which items to test first and which ones can be tested later.
+▪ Test plan: Each item will be specifically planned for testing. It will help to keep track the progress to ensure the project schedule.
+- Build Test Environment and Test Case (Scenario):
++ Test environment: Based on the verification specification, DV engineers will start building the verification environment. The verification environment plays a crucial role in ensuring that the IP/SoC meets the specifications and design requirements. Below are the main components of a verification environment
+▪ Testbench: The most critical component of the environment, the testbench is used to provide inputs, monitor behavior, and verify the correctness of outputs. It can be written in hardware description languages like Verilog, SystemVerilog, or VHDL.
+▪ Verification IP (VIP): Verification IP (VIP) are pre-designed, reusable components that serve as models for standard protocols or interfaces commonly used in SOC designs such as PCIe, USB, Ethernet, DDR, AMBA, and more.
+▪ Coverage: are used to track the completeness of the verification process. These coverage models are integrated into the verification environment during its construction, allowing engineers to monitor and analyze the effectiveness of their test cases and ensure that critical parts of the design have been adequately verified.
+▪ Simulation script: to carry out various steps including compiling the design, testbench, testcase, providing preload files into memory, contrsucting directory trees, support dumping waveform, coverage database generation and simulation report analyzing.
++ Test case (test scenario): Based on the description of the verification steps in the verification plan, DV engineers will begin writing test cases. This is the most intellectually challenging task for DV engineers. Test cases consist of the following main parts:
+▪ Configuration of IPs and related IPs.
+▪ Generating stimuli for the DUT.
+▪ Checkers to verify the outputs.
+A good test case should have the following factors
+▪ Clear and detailed
+▪ Simple and specific
+▪ Easy to reuse
+▪ Cover all possible cases of the design
+▪ Enough approriate checker
+- Run Simulation and Debug: 
++ Compilation: before running simulation, DV engineers need to compile the whole environment to check syntax and connections, include:
+▪ Compile the design under test (DUT)
+▪ Compile the entire environment: testbench, model, VIP, interface ...
+▪ Compile test cases
+During the simulation process, if errors occur, DV engineers must debug them:
+▪ Issues related to environment, testcase: DV must fix
+▪ Issues related to DUT: feedback to designer to have deeper analysis or fixing.
+- Check and Improve Coverage: 
++ Coverage: helps DV engineers identify areas they haven't yet tested. Here are some examples:
+▪ Some lines of code that haven't been tested
+▪ An else-if condition that hasn't been tested
+▪ A logical combination of values that hasn't been tested
+▪ Some states of a state machine that haven't been tested
+….
+Coverage also helps RTL design engineers identify unreasonable lines of code and conditions that never occur. As a result, RTL engineers can optimize their designs to make them better. 
+Completing coverage is a MUST to demonstrate that the verification work is completed.
+- Verification Review: 
++ Review: when all stages are completed, a review session will be organized to review all the previous processes.
+▪ Review the verification specification and verification plan to identify any deficiencies or lacking check for corner cases.
+▪ Review the environment and testbench.
+▪ Review the test cases to ensure correct sequencing and completeness of checkers.
+▪ Review log files and waveforms.
+5. DV engineer responsibility is to ensure the functional correctness of an RTL design before it is manufactured. Key responsibilities include:
+- Finding bugs in the design as early as possible.
+- Verifying that the design meets its functional specification.
+- Developing the verification strategy, plan, testbench environment, and test cases.
+- Defining and achieving coverage goals (functional, code) to measure verification completeness.
+- Debugging failures and collaborating with design engineers to fix issues.
+- Acting as a quality gatekeeper to minimize functional bugs escaping to silicon.
