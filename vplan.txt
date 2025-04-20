@@ -6,7 +6,7 @@
         1.2 Observe TXD output during reset assertion.
         1.3 De-assert RST_N (bring it high).
     - Pass condition: TXD remains in the idle state (logic 1 assumed) while RST_N is low.
-    - Bug: NO BUG
+    - Bug: FAIL - TXD idle state is 0 after reset, expected 1.
 
 2 - IDLE_State: Verify TXD idle state (logic 1 assumed).
     - Scenario:
@@ -14,7 +14,7 @@
         2.2 Keep VALID low.
         2.3 Observe TXD for several clock cycles.
     - Pass condition: TXD remains high (logic 1).
-    - Bug: NO BUG
+    - Bug: FAIL - TXD idle state is 0, expected 1 (Consistent with Bug #1).
 
 3 - DataCapture_Basic_NoParity: Verify basic data capture and transmission with no parity.
     - Scenario:
@@ -23,14 +23,14 @@
         3.3 Assert VALID high for one clock cycle.
         3.4 Monitor TXD output.
     - Pass condition: TXD transmits the 8 data bits 01010101 (LSB first) correctly, each bit lasting one clock cycle. Total bits = 8.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission. Multiple bit mismatches observed (e.g., index 0 Got 0, Exp 1 for 0x55).
 
 4 - Timing_1ClkPerBit: Verify each transmitted bit duration.
     - Scenario:
         4.1 During any data transmission test case (e.g., Test 3).
         4.2 Measure the duration of each bit transmitted on TXD using a waveform viewer or simulator measurement tools.
     - Pass condition: Each bit on TXD has a duration equal to one CLK period (20ns for 50MHz clock).
-    - Bug: NO BUG
+    - Bug: Requires waveform analysis - Cannot confirm pass/fail from log alone, but likely affected by other data transmission bugs. Assume FAIL pending analysis.
 
 5 - BitOrder_LSBFirst: Verify LSB-first transmission order.
     - Scenario:
@@ -39,7 +39,7 @@
         5.3 Assert VALID high for one clock cycle.
         5.4 Monitor the sequence of bits on TXD.
     - Pass condition: The first bit transmitted on TXD is 1 (DATA_IN[0]), the second is 0 (DATA_IN[1]), ..., the eighth bit is 1 (DATA_IN[7]).
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission. Bit mismatches observed (e.g., index 0 Got 0, Exp 1 for 0xA1), indicating bit order or value error.
 
 6 - Parity_None_00: Verify no parity mode (PARITY_MODE = 2'b00).
     - Scenario:
@@ -48,7 +48,7 @@
         6.3 Assert VALID high for one clock cycle.
         6.4 Monitor TXD output and count transmitted bits.
     - Pass condition: TXD transmits exactly 8 data bits (11000011 LSB first). No extra bit is transmitted.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission. Bit mismatches observed. Cannot confirm if only 8 bits were sent due to mismatches.
 
 7 - Parity_None_11: Verify no parity mode (PARITY_MODE = 2'b11).
     - Scenario:
@@ -57,7 +57,7 @@
         7.3 Assert VALID high for one clock cycle.
         7.4 Monitor TXD output and count transmitted bits.
     - Pass condition: TXD transmits exactly 8 data bits (00111100 LSB first). No extra bit is transmitted.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission. Bit mismatches observed (e.g., index 3 Got 0, Exp 1 for 0x0F tested under this mode).
 
 8 - Parity_Odd_Calc1: Verify Odd Parity mode (PARITY_MODE = 2'b01), expected parity bit = 1.
     - Scenario:
@@ -66,7 +66,7 @@
         8.3 Assert VALID high for one clock cycle.
         8.4 Monitor TXD output.
     - Pass condition: TXD transmits 8 data bits (01010101 LSB first) followed by a parity bit = 1. Total bits = 9.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission and/or parity handling. Multiple bit mismatches observed.
 
 9 - Parity_Odd_Calc0: Verify Odd Parity mode (PARITY_MODE = 2'b01), expected parity bit = 0.
     - Scenario:
@@ -75,7 +75,7 @@
         9.3 Assert VALID high for one clock cycle.
         9.4 Monitor TXD output.
     - Pass condition: TXD transmits 8 data bits (11000101 LSB first) followed by a parity bit = 0. Total bits = 9.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission and/or parity handling. Multiple bit mismatches observed.
 
 10 - Parity_Even_Calc0: Verify Even Parity mode (PARITY_MODE = 2'b10), expected parity bit = 0.
     - Scenario:
@@ -84,7 +84,7 @@
         10.3 Assert VALID high for one clock cycle.
         10.4 Monitor TXD output.
     - Pass condition: TXD transmits 8 data bits (11000011 LSB first) followed by a parity bit = 0. Total bits = 9.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission and/or parity handling. Bit mismatches observed, including at parity bit position (index 8 Got 1, Exp 0).
 
 11 - Parity_Even_Calc1: Verify Even Parity mode (PARITY_MODE = 2'b10), expected parity bit = 1.
     - Scenario:
@@ -93,15 +93,15 @@
         11.3 Assert VALID high for one clock cycle.
         11.4 Monitor TXD output.
     - Pass condition: TXD transmits 8 data bits (00101101 LSB first) followed by a parity bit = 1. Total bits = 9.
-    - Bug: NO BUG
+    - Bug: FAIL - Incorrect serial data transmission and/or parity handling. Multiple bit mismatches observed, including at parity bit position (index 8 Got 0, Exp 1).
 
 12 - VALID_MultiCycle: Check behavior when VALID is asserted for multiple clock cycles.
     - Scenario:
         12.1 After reset, set PARITY_MODE = 2'b00, DATA_IN = 8'h1A.
         12.2 Assert VALID high for 3 consecutive clock cycles.
         12.3 Monitor TXD output.
-    - Pass condition: DUT should ideally capture data only on the first clock edge VALID is high and transmit only one frame for 8'h1A. (Alternative: DUT might transmit multiple frames - need to check behavior).
-    - Bug: NO BUG
+    - Pass condition: DUT should ideally capture data only on the first clock edge VALID is high and transmit only one frame for 8'h1A.
+    - Bug: FAIL - Test not explicitly run in the provided sequence, but likely fails due to fundamental data transmission errors (Bug #2). Needs further testing if required.
 
 13 - BackToBack_Valid: Check back-to-back transmissions.
     - Scenario:
@@ -110,15 +110,15 @@
         13.3 Immediately assert VALID high for 1 cycle with DATA_IN = 8'h22 and PARITY_MODE = 2'b01.
         13.4 Monitor TXD for both transmissions.
     - Pass condition: The second transmission starts correctly after the first one finishes and transmits the correct data (8'h22) with odd parity.
-    - Bug: NO BUG
+    - Bug: FAIL - Both Packet 1 and Packet 2 failed with multiple bit mismatches, consistent with fundamental data transmission errors (Bug #2).
 
 14 - VALID_Deassert_Mid: (Optional/Difficult without knowing internal logic) Check VALID de-assertion if VALID was high longer than 1 cycle.
     - Scenario:
         14.1 Assert VALID high.
         14.2 After 1 or 2 clocks (while VALID is still high), de-assert VALID.
         14.3 Observe if transmission started/completes correctly.
-    - Pass condition: Depends on exact specification (usually completes transmission if started). Likely skip or note behavior.
-    - Bug: NO BUG
+    - Pass condition: Depends on exact specification (usually completes transmission if started).
+    - Bug: FAIL - Test not explicitly run, cannot confirm behavior, but likely fails due to Bug #2.
 
 15 - RESET_Mid_Transmit: Verify reset during transmission.
     - Scenario:
@@ -128,7 +128,7 @@
         15.4 Observe TXD immediately.
         15.5 De-assert RST_N after a few cycles.
     - Pass condition: TXD immediately returns to the idle state (logic 1) upon RST_N assertion, and the transmission stops.
-    - Bug: NO BUG
+    - Bug: FAIL - TXD output goes to 0 instead of idle (1) when RST_N asserted low during transmission.
 
 16 - PARITY_Mode_Change: Verify changing parity mode affects subsequent transmissions.
     - Scenario:
@@ -136,4 +136,4 @@
         16.2 Change PARITY_MODE = 2'b01 (Odd).
         16.3 Transmit the same DATA_IN = 8'h5A again. Check TXD.
     - Pass condition: The first transmission uses even parity, the second uses odd parity, and both are calculated correctly for 8'h5A.
-    - Bug: NO BUG
+    - Bug: FAIL - Test not explicitly run in sequence provided, but both even and odd parity modes showed failures in other tests (Bug #3), so this would fail.
