@@ -1,14 +1,9 @@
-//----------------------------------------------------------------------
-// Testbench for Homework 2: Parallel-to-Serial Converter with Parity
-// Verilog-2001 Compatible - Corrected string issue
-//----------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module test_bench;
 
-  parameter CLK_PERIOD = 20; // 50MHz
+  parameter CLK_PERIOD = 20; 
 
-  // Testbench Signals
   reg clk;
   reg rst_n;
   reg valid;
@@ -16,13 +11,11 @@ module test_bench;
   reg [1:0] parity_mode;
   wire txd;
 
-  // Verification Tracking
   integer pass_count = 0;
   integer fail_count = 0;
   integer test_count = 0;
   reg test_failed;
 
-  // DUT Instantiation - *** CHECK MODULE NAME 'top' ***
   top dut (
       .CLK(clk),
       .RST_N(rst_n),
@@ -32,7 +25,6 @@ module test_bench;
       .TXD(txd)
   );
 
-  // Clock Generation
   initial begin
     clk = 0;
     forever #(CLK_PERIOD/2) clk = ~clk;
@@ -57,7 +49,6 @@ module test_bench;
     if (vld) @(posedge clk) valid <= 1'b0;
   endtask
 
-  // Performs a transmission check - REMOVED string test_id
   task run_and_check_transmission( input [7:0] current_data,
                                    input [1:0] current_parity_mode );
     reg expected_parity;
@@ -65,9 +56,6 @@ module test_bench;
     test_count = test_count + 1;
     test_failed = 1'b0;
 
-    // $display message moved to the initial block before calling the task
-
-    // Calculate expected data and length based on spec
     case (current_parity_mode)
       2'b00, 2'b11: expected_bit_count = 8;
       2'b01: begin expected_bit_count = 9; expected_parity = calculate_parity_bit(current_data, 1); end // Odd
@@ -79,26 +67,24 @@ module test_bench;
     apply_stimulus(current_data, 1'b1, current_parity_mode);
 
     // --- Monitor TXD Output ---
-    @(posedge clk); // Assume DUT samples VALID on previous edge, starts TX now
-
-    begin // Local variable scope for monitoring
-        reg [8:0] received_data;
-        integer bit_idx;
-        reg expected_bit;
-
+    @(posedge clk); 
+    
+    reg [8:0] received_data;
+    integer bit_idx;
+    reg expected_bit
+    begin 
         // Monitor expected number of bits
         for (bit_idx = 0; bit_idx < expected_bit_count; bit_idx = bit_idx + 1) begin
-            #1; // Sample shortly after clock edge
-            received_data[bit_idx] = txd; // Store LSB first
-            // $display("[TIME %0t] Monitor: Received bit %d = %b", $time, bit_idx, txd); // Optional debug display
-            @(posedge clk); // Wait for next clock edge
+            #1; 
+            received_data[bit_idx] = txd; 
+            @(posedge clk); 
         end
 
         // Check received data against expected sequence (LSB first comparison)
         for (bit_idx = 0; bit_idx < expected_bit_count; bit_idx = bit_idx + 1) begin
-             if (bit_idx < 8) begin // Data bits
-                expected_bit = current_data[bit_idx]; // LSB of data is bit 0
-             end else begin // bit_idx == 8 (Parity bit)
+             if (bit_idx < 8) begin 
+                expected_bit = current_data[bit_idx]; 
+             end else begin 
                 expected_bit = expected_parity;
              end
 
@@ -110,14 +96,11 @@ module test_bench;
 
         // Report result
         if (!test_failed) begin
-           // PASSED message moved outside, before calling the task
            pass_count = pass_count + 1;
         end else begin
            $display("[TIME %0t] FAILED: Check for DATA=0x%h, MODE=%b", $time, current_data, current_parity_mode);
            fail_count = fail_count + 1;
-           // *** Document Bug in VPlan based on FAILED messages ***
         end
-        // @(posedge clk); // Optional wait for TXD idle?
     end
   endtask
 
@@ -176,17 +159,17 @@ module test_bench;
 
     // Reset During Transmission Test (VPlan 15)
     $display("\n[TEST] Reset During Transmission");
-    apply_stimulus(8'hCC, 1'b1, 2'b10); // Start transmission
-    @(posedge clk); // DUT samples
-    repeat (4) @(posedge clk); // Let some bits transmit
+    apply_stimulus(8'hCC, 1'b1, 2'b10); 
+    @(posedge clk); 
+    repeat (4) @(posedge clk); 
     $display("[TIME %0t] Asserting RST_N during transmission...", $time);
-    rst_n <= 1'b0; // Assert reset
+    rst_n <= 1'b0; 
     #1;
     test_count=test_count+1;
     if (txd === 1'b1) begin $display("[TIME %0t] PASSED: Reset Mid-Transmit. TXD went idle.", $time); pass_count=pass_count+1; end
     else begin $display("[TIME %0t] FAILED: Reset Mid-Transmit. TXD=%b (Exp: 1)", $time, txd); fail_count=fail_count+1; end
     #(CLK_PERIOD*2);
-    rst_n <= 1'b1; // De-assert reset
+    rst_n <= 1'b1; 
     @(posedge clk);
 
 
