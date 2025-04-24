@@ -10,7 +10,6 @@
 
 module register_file_tb;
 
-// Testbench Signals
 reg          clk_tb;
 reg          rst_n_tb;
 reg          wr_en_tb;
@@ -19,7 +18,6 @@ reg  [9:0]   addr_tb;
 reg  [31:0]  wdata_tb;
 wire [31:0]  rdata_tb;
 
-// Instantiate the Design Under Test (DUT)
 register_file dut (
     .clk      (clk_tb),
     .rst_n    (rst_n_tb),
@@ -30,39 +28,38 @@ register_file dut (
     .rdata    (rdata_tb)
 );
 
-// Clock Generation (e.g., 10ns period)
 parameter CLK_PERIOD = 10;
 initial begin
     clk_tb = 0;
     forever #(CLK_PERIOD / 2) clk_tb = ~clk_tb;
 end
 
-// Stimulus Sequence
+// Stimulus 
 initial begin
     $display("--------------------------------------------------");
     $display("Testbench Started at time %0t", $time);
     $display("--------------------------------------------------");
 
     // 1. Initialize inputs and apply reset
-    rst_n_tb = 1; // Deassert reset initially
+    rst_n_tb = 1; 
     wr_en_tb = 0;
     rd_en_tb = 0;
     addr_tb  = 10'h0;
     wdata_tb = 32'h0;
     #5; // Wait a bit
 
-    rst_n_tb = 0; // Assert reset
+    rst_n_tb = 0; 
     $display("[%0t] Applying Reset (rst_n = 0)", $time);
-    #(CLK_PERIOD * 2); // Hold reset for 2 clock cycles
+    #(CLK_PERIOD * 2); 
 
-    rst_n_tb = 1; // Deassert reset
+    rst_n_tb = 1; 
     $display("[%0t] Releasing Reset (rst_n = 1)", $time);
     #(CLK_PERIOD);
 
     // 2. Read default values after reset
     $display("[%0t] Reading default values...", $time);
     rd_en_tb = 1;
-    addr_tb  = 10'h000; // Read DATA0
+    addr_tb  = 10'h000; 
     #(CLK_PERIOD);
     $display("[%0t] Read DATA0 (addr 0x0): %h", $time, rdata_tb); // Expected: 00000000
 
@@ -85,10 +82,10 @@ initial begin
     wr_en_tb = 1;
     addr_tb  = 10'h000;
     wdata_tb = 32'hAAAAAAAA;
-    #(CLK_PERIOD); // Write happens on next clock edge
+    #(CLK_PERIOD); 
     wr_en_tb = 0;
-    wdata_tb = 32'h0; // Clear wdata bus
-    #(CLK_PERIOD); // Wait one cycle for write to complete internally
+    wdata_tb = 32'h0; 
+    #(CLK_PERIOD); 
 
     $display("[%0t] Reading back from DATA0 and SR_DATA0...", $time);
     rd_en_tb = 1;
@@ -107,10 +104,10 @@ initial begin
     wr_en_tb = 1;
     addr_tb  = 10'h008;
     wdata_tb = 32'hBBBBBBBB;
-    #(CLK_PERIOD); // Write happens on next clock edge
+    #(CLK_PERIOD); 
     wr_en_tb = 0;
     wdata_tb = 32'h0;
-    #(CLK_PERIOD); // Wait one cycle
+    #(CLK_PERIOD); 
 
     $display("[%0t] Reading back from DATA1 and SR_DATA1...", $time);
     rd_en_tb = 1;
@@ -142,7 +139,7 @@ initial begin
     rd_en_tb = 0;
     #(CLK_PERIOD);
 
-    // 6. Test Reserved Address Access (e.g., 0x10)
+    // 6. Test Reserved Address Access 
     $display("[%0t] Testing Reserved Address 0x10...", $time);
     // Write Ignored (WI) test
     $display("[%0t] Attempting to write 0xDDDDDDDD to Reserved Addr 0x10...", $time);
@@ -162,7 +159,7 @@ initial begin
     #(CLK_PERIOD);
     $display("[%0t] Read DATA1 (addr 0x8): %h", $time, rdata_tb); // Expected: BBBBBBBB
 
-    // Read As Zero (RAZ) test
+    // Read As Zero test
     $display("[%0t] Reading from Reserved Addr 0x10...", $time);
     addr_tb  = 10'h010;
     #(CLK_PERIOD);
@@ -174,7 +171,7 @@ initial begin
     $display("--------------------------------------------------");
     $display("Testbench Finished at time %0t", $time);
     $display("--------------------------------------------------");
-    $finish; // End simulation
+    $finish; 
 end
 
-endmodule // register_file_tb
+endmodule 
