@@ -12,7 +12,7 @@ reg          rd_en_tb;
 reg  [9:0]   addr_tb;
 reg  [31:0]  wdata_tb;
 wire [31:0]  rdata_tb;
-wire         overflow_tb;
+wire         overflow_tb; 
 
 integer error_count = 0;
 integer test_count = 0;
@@ -25,7 +25,7 @@ counter_top dut (
     .addr     (addr_tb),
     .wdata    (wdata_tb),
     .rdata    (rdata_tb),
-    .overflow (overflow_tb) 
+    .overflow (overflow_tb)
 );
 
 initial begin
@@ -33,7 +33,7 @@ initial begin
     forever #(CLK_PERIOD / 2) clk_tb = ~clk_tb;
 end
 
-// Task Write
+// Task write
 task write_reg;
     input [9:0]  address;
     input [31:0] data;
@@ -44,13 +44,13 @@ task write_reg;
         wr_en_tb = 1;
         @(posedge clk_tb);
         wr_en_tb = 0;
-        addr_tb  = 10'hXXX;
+        addr_tb  = 10'hXXX; 
         wdata_tb = 32'hX;
         $display("[%0t] INFO: WRITE Addr=0x%h Data=0x%h", $time, address, data);
     end
 endtask
 
-// Task Read
+// Task read
 task read_reg;
     input [9:0] address;
     begin
@@ -59,33 +59,35 @@ task read_reg;
         rd_en_tb = 1;
         @(posedge clk_tb); 
         rd_en_tb = 0;
-        addr_tb  = 10'hXXX;
+        addr_tb  = 10'hXXX; 
     end
 endtask
 
-// Task Compare
+// Task for checking read data 
 task check_read;
     input [9:0]  address;
     input [31:0] expected_data;
-    input string test_name;
     begin
         test_count = test_count + 1;
         read_reg(address); 
         if (rdata_tb === expected_data) begin
-            $display("[%0t] INFO: TESTCASE %0d '%s': PASS", $time, test_count, test_name);
+            $display("[%0t] INFO: TESTCASE %0d: PASS (Addr=0x%h, Expected=0x%h, Got=0x%h)",
+                     $time, test_count, address, expected_data, rdata_tb);
         end else begin
-            $display("[%0t] ERROR: TESTCASE %0d '%s': FAIL - Expected=0x%h, Got=0x%h",
-                     $time, test_count, test_name, expected_data, rdata_tb);
+            $display("[%0t] ERROR: TESTCASE %0d: FAIL - Addr=0x%h, Expected=0x%h, Got=0x%h",
+                     $time, test_count, address, expected_data, rdata_tb);
             error_count = error_count + 1;
         end
         #(T_HOLD); 
     end
 endtask
 
-// Task to generate a pulse via CR write
+// Task to generate a pulse via CR write 
 task generate_pulse;
-     write_reg(10'h000, 32'h00000001); 
-     #(CLK_PERIOD); 
+    begin 
+        write_reg(10'h000, 32'h00000001); 
+        #(CLK_PERIOD);
+    end 
 endtask
 
 
@@ -94,6 +96,8 @@ initial begin
     $display("--------------------------------------------------");
     $display("Self-Checking Testbench Started at time %0t", $time);
     $display("--------------------------------------------------");
+    $monitor("[%0t] Addr=0x%h WrEn=%b RdEn=%b WData=0x%h | RData=0x%h | Overflow=%b",
+             $time, addr_tb, wr_en_tb, rd_en_tb, wdata_tb, rdata_tb, overflow_tb);
 
     // 1. Initialize and Reset
     rst_n_tb = 1; wr_en_tb = 0; rd_en_tb = 0; addr_tb = 10'hXXX; wdata_tb = 32'hX;
@@ -106,62 +110,73 @@ initial begin
     #(CLK_PERIOD);
 
     // 2. Check initial status (counter=0, overflow_sticky=0)
-    check_read(10'h004, 32'h00000000, "Read Initial Status"); // Expect SR[3]=0, SR[2:0]=0
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Initial Status'", $time, test_count+1); 
+    check_read(10'h004, 32'h00000000); 
 
     // 3. Generate pulses and check count
     $display("[%0t] INFO: Generating 3 count pulses...", $time);
     generate_pulse(); 
     generate_pulse(); 
-    generate_pulse();
+    generate_pulse(); 
     #(CLK_PERIOD);    
-    check_read(10'h004, 32'h00000003, "Read Count after 3 pulses"); // Expect SR[2:0]=3
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Count after 3 pulses'", $time, test_count+1);
+    check_read(10'h004, 32'h00000003); // Expect SR[2:0]=3
 
     // 4. Clear the counter
     $display("[%0t] INFO: Clearing the counter...", $time);
-    write_reg(10'h000, 32'h00000002); 
+    write_reg(10'h000, 32'h00000002); // Write CR[1]=1 
     #(CLK_PERIOD * 2); 
-    check_read(10'h004, 32'h00000000, "Read Count after Clear"); // Expect SR[2:0]=0
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Count after Clear'", $time, test_count+1);
+    check_read(10'h004, 32'h00000000); // Expect SR[2:0]=0
 
     // 5. Deassert clear, keep counter stopped
     $display("[%0t] INFO: Deasserting clear...", $time);
     write_reg(10'h000, 32'h00000000); // Write CR[1]=0, CR[0]=0
     #(CLK_PERIOD);
-    check_read(10'h004, 32'h00000000, "Read Count after Deassert Clear");
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Count after Deassert Clear'", $time, test_count+1);
+    check_read(10'h004, 32'h00000000);
 
-    // 6. Count until overflow (from 0 needs 8 pulses)
+    // 6. Count until overflow 
     $display("[%0t] INFO: Counting to overflow (7 -> 0)...", $time);
     repeat (7) begin // Generate 7 pulses to reach count=7
       generate_pulse();
     end
-    check_read(10'h004, 32'h00000007, "Read Count before Overflow pulse"); // Expect SR[2:0]=7, SR[3]=0
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Count before Overflow pulse'", $time, test_count+1);
+    check_read(10'h004, 32'h00000007); // Expect SR[2:0]=7, SR[3]=0
 
-    generate_pulse(); // 8th pulse triggers overflow (7->0)
+    generate_pulse(); 
     #(CLK_PERIOD);    
     $display("[%0t] INFO: Checking status after overflow pulse...", $time);
-    check_read(10'h004, 32'h00000008, "Read Status after Overflow"); // Expect SR[2:0]=0, SR[3]=1
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Status after Overflow'", $time, test_count+1);
+    check_read(10'h004, 32'h00000008); // Expect SR[2:0]=0, SR[3]=1
 
     // 7. Read status again 
     #(CLK_PERIOD * 2);
     $display("[%0t] INFO: Reading status again (sticky bit check)...", $time);
-    check_read(10'h004, 32'h00000008, "Read Status - Sticky Check"); // Expected SR[3]=1
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Status - Sticky Check'", $time, test_count+1);
+    check_read(10'h004, 32'h00000008); // Expected SR[3]=1
 
     // 8. Clear the sticky overflow bit by writing 0 to SR[3]
     $display("[%0t] INFO: Clearing sticky overflow bit...", $time);
-    write_reg(10'h004, 32'h00000000); // Write CR[3]=0 to clear sticky bit
+    write_reg(10'h004, 32'h00000000); // Write 0 to SR[3] 
     #(CLK_PERIOD);
-    check_read(10'h004, 32'h00000000, "Read Status after Clear Sticky Bit"); // Expected SR[3]=0
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Status after Clear Sticky Bit'", $time, test_count+1);
+    check_read(10'h004, 32'h00000000); // Expected SR[3]=0
 
-    // 9. Test Reserved Address Read (RAZ)
+     // 9. Test Reserved Address Read (RAZ)
     $display("[%0t] INFO: Reading Reserved Address 0x08...", $time);
-    check_read(10'h008, 32'h00000000, "Read Reserved Address (RAZ)");
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Read Reserved Address (RAZ)'", $time, test_count+1);
+    check_read(10'h008, 32'h00000000); // Expected RData = 0
 
     // 10. Test Reserved Address Write (WI)
     $display("[%0t] INFO: Writing to Reserved Address 0x08...", $time);
     write_reg(10'h008, 32'hDEADBEEF);
     #(CLK_PERIOD);
     $display("[%0t] INFO: Checking control/status regs after WI attempt...", $time);
-    check_read(10'h000, 32'h00000000, "Check CR after WI"); // CR[1:0] should be 0 from last write in step 5
-    check_read(10'h004, 32'h00000000, "Check SR after WI"); // SR[3] was cleared, counter value is 0
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Check CR after WI'", $time, test_count+1);
+    check_read(10'h000, 32'h00000000); // CR[1:0] should be 0 from step 5
+    $display("[%0t] INFO: Starting TESTCASE %0d 'Check SR after WI'", $time, test_count+1);
+    check_read(10'h004, 32'h00000000); // SR[3] was cleared, counter value is 0
 
     #(CLK_PERIOD * 2);
 
