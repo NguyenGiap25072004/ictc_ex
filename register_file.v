@@ -1,30 +1,27 @@
-module register_file #(
+module timer_reg_file_standard_decoder #(
     parameter ADDR_WIDTH = 12,
     parameter DATA_WIDTH = 32
-) 
-(
+) (
     input wire                  clk,
     input wire                  rst_n,
 
-    // Interface from APB  
+    // from APB 
     input wire [ADDR_WIDTH-1:0] addr,         
-    input wire                  wr_en,       
+    input wire                  wr_en,        
     input wire                  rd_en,        
-    input wire [DATA_WIDTH-1:0] wdata,       
+    input wire [DATA_WIDTH-1:0] wdata,        
 
-    // Interface to APB
+    // to APB
     output reg [DATA_WIDTH-1:0] rdata,        
 
-    // Interface from Timer Core Logic
-    input wire [63:0]           core_mtime,           
-    input wire                  core_int_pending_set, 
+    input wire [63:0]           mtime,           
+    input wire                  int_pending_set, 
 
-    // Interface to Timer Core Logic
-    output wire [31:0]          reg_tcr_val,    
+    output wire [31:0]          reg_tcr_val,     
     output wire [63:0]          reg_tcmp_val,    
-    output wire [31:0]          reg_tier_val,   
-    output wire [31:0]          reg_tisr_val,    
-    output wire [31:0]          reg_thcsr_val    
+    output wire [31:0]          reg_tier_val,    
+    output wire [31:0]          reg_tisr_val,   
+    output wire [31:0]          reg_thcsr_val   
 );
 
 localparam TCR   = 12'h000;
@@ -36,27 +33,43 @@ localparam TIER  = 12'h014;
 localparam TISR  = 12'h018;
 localparam THCSR = 12'h01C;
 
-localparam TCR_DEFAULT   = 32'h0000_0100; // timer_en=0, div_en=0, div_val=1
+localparam TCR_DEFAULT   = 32'h0000_0100;
 localparam TDR0_DEFAULT  = 32'h0000_0000;
 localparam TDR1_DEFAULT  = 32'h0000_0000;
 localparam TCMP0_DEFAULT = 32'hFFFF_FFFF;
 localparam TCMP1_DEFAULT = 32'hFFFF_FFFF;
-localparam TIER_DEFAULT  = 32'h0000_0000; // int_en=0
-localparam TISR_DEFAULT  = 32'h0000_0000; // int_st=0
-localparam THCSR_DEFAULT = 32'h0000_0000; // halt_req=0, halt_ack=0
+localparam TIER_DEFAULT  = 32'h0000_0000;
+localparam TISR_DEFAULT  = 32'h0000_0000;
+localparam THCSR_DEFAULT = 32'h0000_0000;
 
-// Register 
+
+reg [7:0]  reg_sel;      // [0]=TCR, [1]=TDR0, [2]=TDR1, [3]=TCMP0, [4]=TCMP1, [5]=TIER, [6]=TISR, [7]=THCSR
 
 reg [31:0] tcr_reg;
-reg [31:0] tdr0_reg;      // Holds written value for mtime low (RW)
-reg [31:0] tdr1_reg;      // Holds written value for mtime high (RW)
+reg [31:0] tdr0_reg;
+reg [31:0] tdr1_reg;
 reg [31:0] tcmp0_reg;
 reg [31:0] tcmp1_reg;
 reg [31:0] tier_reg;
-reg [31:0] tisr_reg;      // Bit 0 is int_st (RW1C)
-reg [31:0] thcsr_reg;     // Bit 0 RW but unused, Bit 1 RO=0
+reg [31:0] tisr_reg;
+reg [31:0] thcsr_reg;
 
-wire       wen_tisr_clear; // Signal to clear TISR[0] via write
+
+always @(*) begin
+    // Default 
+    reg_sel = 8'b0000_0000;
+    case (addr)
+        TCR:   reg_sel = 8'b0000_0001; // [0]
+        TDR0:  reg_sel = 8'b0000_0010; // [1]
+        TDR1:  reg_sel = 8'b0000_0100; // [2]
+        TCMP0: reg_sel = 8'b0000_1000; // [3]
+        TCMP1: reg_sel = 8'b0001_0000; // [4]
+        TIER:  reg_sel = 8'b0010_0000; // [5]
+        TISR:  reg_sel = 8'b0100_0000; // [6]
+        THCSR: reg_sel = 8'b1000_0000; // [7]
+        default: reg_sel = 8'b0000_0000; 
+    endcase
+end
 
 // Write 
 always @(posedge clk or negedge rst_n) begin
@@ -70,44 +83,44 @@ always @(posedge clk or negedge rst_n) begin
         tisr_reg  <= TISR_DEFAULT;
         thcsr_reg <= THCSR_DEFAULT;
     end else begin
-        // TCR (Handle RO bits [7:2] and [31:12])
-        if (wr_en && (addr == TCR)) begin
-            // Write only RW bits: [11:8] div_val, [1] div_en, [0] timer_en
-            tcr_reg[11:8] <= wdata[11:8];
-            tcr_reg[1]    <= wdata[1];
-            tcr_reg[0]    <= wdata[0];
+
+        // TCR 
+        if (wr_en && reg_sel[0]) begin 
+            tcr_reg[11:8] <= wdata[11:8]; // div_val
+            tcr_reg[1]    <= wdata[1];    // div_en
+            tcr_reg[0]    <= wdata[0];    // timer_en
         end
 
-        // TDR0/1 Logic 
-        if (wr_en && (addr == TDR0)) begin
-            tdr0_reg <= wdata; 
+        // TDR0/1 
+        if (wr_en && reg_sel[1]) begin 
+            tdr0_reg <= wdata;
         end
-        if (wr_en && (addr == TDR1)) begin
-            tdr1_reg <= wdata; 
+        if (wr_en && reg_sel[2]) begin 
+            tdr1_reg <= wdata;
         end
 
-        // TCMP0/1 Logic
-        if (wr_en && (addr == TCMP0)) begin
+        // TCMP0/1 
+        if (wr_en && reg_sel[3]) begin 
             tcmp0_reg <= wdata;
         end
-        if (wr_en && (addr == TCMP1)) begin
+        if (wr_en && reg_sel[4]) begin 
             tcmp1_reg <= wdata;
         end
 
-        // TIER (Only bit 0 RW)
-        if (wr_en && (addr == TIER)) begin
-            tier_reg[0] <= wdata[0];
+        // TIER 
+        if (wr_en && reg_sel[5]) begin 
+            tier_reg[0] <= wdata[0]; 
         end
 
-        // TISR  (RW1C for bit 0)
-        if (wr_en && (addr == TISR) && wdata[0]) begin 
-            tisr_reg[0] <= 1'b0; // Clear int_st
-        end else if (core_int_pending_set) begin 
-            tisr_reg[0] <= 1'b1; // Set int_st
+        // TISR 
+        if (wr_en && reg_sel[6] && wdata[0]) begin 
+            tisr_reg[0] <= 1'b0; 
+        end else if (int_pending_set) begin
+            tisr_reg[0] <= 1'b1; 
         end
 
-        // THCSR (bit 0 RW, bit 1 RO=0)
-        if (wr_en && (addr == THCSR)) begin
+        // THCSR 
+        if (wr_en && reg_sel[7]) begin 
             thcsr_reg[0] <= wdata[0]; 
         end
         thcsr_reg[1] <= 1'b0;
@@ -115,31 +128,26 @@ always @(posedge clk or negedge rst_n) begin
     end 
 end 
 
-
 // Read 
-// Use address directly for selection
 always @(*) begin
-
     rdata = 32'b0;
     if (rd_en) begin 
-        case (addr)
-            TCR:   rdata = tcr_reg;
-            TDR0:  rdata = core_mtime[31:0];   
-            TDR1:  rdata = core_mtime[63:32]; 
-            TCMP0: rdata = tcmp0_reg;
-            TCMP1: rdata = tcmp1_reg;
-            TIER:  rdata = tier_reg;
-            TISR:  rdata = tisr_reg;
-            THCSR: rdata = thcsr_reg;         
-            default: rdata = 32'b0;            
-        endcase
+        if (reg_sel[0])      rdata = tcr_reg;
+        else if (reg_sel[1]) rdata = mtime[31:0];   
+        else if (reg_sel[2]) rdata = mtime[63:32];  
+        else if (reg_sel[3]) rdata = tcmp0_reg;
+        else if (reg_sel[4]) rdata = tcmp1_reg;
+        else if (reg_sel[5]) rdata = tier_reg;
+        else if (reg_sel[6]) rdata = tisr_reg;
+        else if (reg_sel[7]) rdata = thcsr_reg;
+        else                 rdata = 32'b0;             
     end
 end
 
 assign reg_tcr_val   = tcr_reg;
-assign reg_tcmp_val  = {tcmp1_reg, tcmp0_reg}; 
+assign reg_tcmp_val  = {tcmp1_reg, tcmp0_reg};
 assign reg_tier_val  = tier_reg;
 assign reg_tisr_val  = tisr_reg;
-assign reg_thcsr_val = thcsr_reg; 
+assign reg_thcsr_val = thcsr_reg;
 
 endmodule 
