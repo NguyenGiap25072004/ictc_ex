@@ -1,90 +1,89 @@
 module timer_top(
-	// System Signals
 	input 	wire 		sys_clk,
 	input	wire 		sys_rst_n,
-	input	wire		dbg_mode,
-	// APB Slave Interface
+	// APB interface
 	input 	wire		tim_psel,
 	input	wire 		tim_pwrite,
 	input	wire 		tim_penable,
 	input 	wire [31:0] 	tim_paddr,
 	input	wire [31:0] 	tim_pwdata,
+	input	wire		dbg_mode, // This input is unused, as per original design
 	input	wire [3:0]	tim_pstrb,
 	output	wire [31:0]	tim_prdata,
 	output	wire		tim_pready,
 	output	wire		tim_pslverr,
-	// Interrupt Output
 	output	wire		tim_int
 );
-	// Internal wires for connecting modules
-	wire [11:0] address;
-	wire        wr_en, rd_en;
-	wire        timer_en, div_en, raw_count_en;
-	wire [3:0]  div_val;
-	wire        int_en, int_st;
-	wire        tdr0_wr_sel, tdr1_wr_sel;
-	wire [63:0] count2reg;
-	wire        final_count_en; // Wire for final count enable signal
 
-	// ** Implement dbg_mode functionality as per specification **
-	// The counter only gets enabled if not in debug mode.
-	assign final_count_en = raw_count_en & !dbg_mode;
+	// Wires connecting the sub-modules
+	wire [11:0] decoded_addr;
+	wire        write_strobe, read_strobe;
+	wire        cfg_timer_en, cfg_div_en, tick_en;
+	wire [3:0]  cfg_div_val;
+	wire        irq_en_bit, irq_status_bit;
+	wire        sel_tdr0_write, sel_tdr1_write;
+	wire [63:0] current_count_val;
 
-	apb_interface APB_INTERFACE(
+	// Instantiate the APB Interface block
+	apb_interface u_apb_if (
 		.clk        (sys_clk),
 		.rst_n      (sys_rst_n),
-		.psel       (tim_psel),
-		.pwrite     (tim_pwrite),
-		.penable    (tim_penable),
-		.paddr      (tim_paddr),
-		.pready     (tim_pready),
-		.pslverr    (tim_pslverr),
-		.addr       (address),
-		.wr_en      (wr_en),
-		.rd_en      (rd_en)
+		.psel		(tim_psel),
+		.pwrite		(tim_pwrite),
+		.penable	(tim_penable),
+		.paddr		(tim_paddr),
+		.pready		(tim_pready),
+		.pslverr	(tim_pslverr),
+		.addr		(decoded_addr),
+		.wr_en		(write_strobe),
+		.rd_en		(read_strobe)
 	);
 
-	register REG_SET (
-		.clk         (sys_clk),
-		.rst_n       (sys_rst_n),
-		.wr_en       (wr_en),
-		.rd_en       (rd_en),
-		.addr        (address),
-		.wdata       (tim_pwdata),
-		.count_val   (count2reg),
-		.timer_en    (timer_en),
-		.div_en      (div_en),
-		.div_val     (div_val),
-		.tdr0_wr_sel (tdr0_wr_sel),
-		.tdr1_wr_sel (tdr1_wr_sel),
-		.int_en      (int_en),
-		.int_st      (int_st),
-		.rdata       (tim_prdata)
+	// Instantiate the Register Set block
+	register u_reg_file (
+		.clk		(sys_clk),
+		.rst_n		(sys_rst_n),
+		.wr_en		(write_strobe),
+		.rd_en		(read_strobe),
+		.addr		(decoded_addr),
+		.wdata		(tim_pwdata),
+		.count_val	(current_count_val),
+		.timer_en	(cfg_timer_en),
+		.div_en		(cfg_div_en),
+		.div_val	(cfg_div_val),
+		.tdr0_wr_sel(sel_tdr0_write),
+		.tdr1_wr_sel(sel_tdr1_write),
+		.int_en		(irq_en_bit),
+		.int_st     (irq_status_bit),
+		.rdata		(tim_prdata)
 	);
 
-	counter_control COUNTER_CONTROL (
-		.clk        (sys_clk),
-		.rst_n      (sys_rst_n),
-		.timer_en   (timer_en),
-		.div_en     (div_en),
-		.div_val    (div_val),
-		.count_en   (raw_count_en) // Output is the 'raw' enable
+	// Instantiate the Counter Control block
+	counter_control u_counter_ctrl (
+		.clk		(sys_clk),
+		.rst_n		(sys_rst_n),
+		.timer_en	(cfg_timer_en),
+		.div_en		(cfg_div_en),
+		.div_val	(cfg_div_val),
+		.count_en	(tick_en)
 	);
 
-	counter COUNTER (
-		.clk         (sys_clk),
-		.rst_n       (sys_rst_n),
-		.count_en    (final_count_en), // Use the final, debug-gated enable
-		.tdr0_wr_sel (tdr0_wr_sel),
-		.tdr1_wr_sel (tdr1_wr_sel),
-		.wdata       (tim_pwdata),
-		.count_val   (count2reg)
+	// Instantiate the Counter block
+	counter u_counter (
+		.clk		    (sys_clk),
+		.rst_n		    (sys_rst_n),
+		.count_en	    (tick_en), // NOTE: dbg_mode is NOT connected here, per original logic
+		.tdr0_wr_sel	(sel_tdr0_write),
+		.tdr1_wr_sel    (sel_tdr1_write),
+		.wdata		    (tim_pwdata),
+		.count_val	    (current_count_val)
 	);
 
-	interrupt INTERRUPT(
-		.int_en    (int_en),
-		.int_st    (int_st),
-		.interrupt (tim_int)
+	// Instantiate the Interrupt Generation block
+	interrupt u_interrupt (
+		.int_en		(irq_en_bit),
+		.int_st		(irq_status_bit),
+		.interrupt	(tim_int)
 	);
 
 endmodule
