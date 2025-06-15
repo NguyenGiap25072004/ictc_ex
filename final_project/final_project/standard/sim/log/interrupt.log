@@ -1,0 +1,116 @@
+# vsim -coverage -l interrupt.log -c test_bench -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit interrupt.ucdb; log -r /*;run -all" 
+# Start time: 09:22:29 on Jun 07,2025
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# //  Questa Intel Starter FPGA Edition-64
+# //  Version 2023.3 linux_x86_64 Jul 17 2023
+# //
+# //  Copyright 1991-2023 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.test_bench(fast)
+# coverage save -onexit interrupt.ucdb
+#  log -r /*
+# run -all
+# =============================================
+# -------- TEST I1: INTERRUPT ASSERTED --------
+# =============================================
+# Interrupt enable
+# ====================================
+# [23000] WRITE: Addr = 0x4000100c, Data = 0xfffffff9
+# ====================================
+# ====================================
+# [38000] WRITE: Addr = 0x40001010, Data = 0xffffffff
+# ====================================
+# Cycles needed to count to interrupt value:          9
+# ====================================
+# [53000] WRITE: Addr = 0x40001014, Data = 0x00000001
+# ====================================
+# ====================================
+# [68000] WRITE: Addr = 0x40001004, Data = 0xfffffff0
+# ====================================
+# ====================================
+# [83000] WRITE: Addr = 0x40001008, Data = 0xffffffff
+# ====================================
+# ====================================
+# [98000] WRITE: Addr = 0x40001000, Data = 0x00000001
+# ====================================
+# ====================================
+# [148000] WRITE: Addr = 0x40001000, Data = 0x00000000
+# ====================================
+# ====================================
+# [169000] READ: Addr = 0x40001004, Data = 0xfffffffa
+# ====================================
+# ====================================
+# [184000] READ: Addr = 0x40001008, Data = 0xffffffff
+# ====================================
+# actual_count = fffffffffffffffa
+# ====================================
+# [198000] WRITE: Addr = 0x40001004, Data = 0x00000000
+# ====================================
+# ====================================
+# [213000] WRITE: Addr = 0x40001008, Data = 0x00000000
+# ====================================
+# Interrupt register status
+# ====================================
+# [229000] READ: Addr = 0x40001018, Data = 0x00000001
+# ====================================
+# ====================================
+# At [t=       230] - [PASS] Expected: 0x00000001, Got: 0x00000001
+# ====================================
+# Interrupt output status
+# ====================================
+# At [t=       231] - [PASS] Expected: 0x00000001, Got: 0x00000001
+# ====================================
+# =============================================
+# -------- TEST I2: INTERRUPT MASK ------------
+# =============================================
+# Clear interrupt enable bit in TIER register bit 0
+# ====================================
+# [243000] WRITE: Addr = 0x40001014, Data = 0x00000000
+# ====================================
+# Check interrupt status in TISR Register bit 0
+# ====================================
+# [259000] READ: Addr = 0x40001018, Data = 0x00000001
+# ====================================
+# ====================================
+# At [t=       260] - [PASS] Expected: 0x00000000, Got: 0x00000000
+# ====================================
+# Set int_en = 0 turn interrupt pin into low
+# ====================================
+# At [t=       261] - [PASS] Expected: 0x00000001, Got: 0x00000001
+# ====================================
+# Set int_en = 0 do not clear interrupt status bit
+# =============================================
+# -------- TEST I3: INTERRUPT CLEARED ---------
+# =============================================
+# ====================================
+# [274000] READ: Addr = 0x40001018, Data = 0x00000001
+# ====================================
+# The interrupt status is 1
+# Write 1 to clear interrupt status
+# ====================================
+# [288000] WRITE: Addr = 0x40001018, Data = 0x00000001
+# ====================================
+# ====================================
+# [304000] READ: Addr = 0x40001018, Data = 0x00000000
+# ====================================
+# ====================================
+# At [t=       305] - [PASS] Expected: 0x00000000, Got: 0x00000000
+# ====================================
+# The number of Error:           0:
+# ==========================================================
+# --------------------- TEST SUCCESS! ----------------------
+# ==========================================================
+# ** Note: $finish    : ../tb/test_bench.v(90)
+#    Time: 305500 ps  Iteration: 0  Instance: /test_bench
+# Saving coverage database on exit...
+# End time: 09:22:30 on Jun 07,2025, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0

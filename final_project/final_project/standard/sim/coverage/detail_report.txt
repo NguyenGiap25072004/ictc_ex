@@ -1,0 +1,510 @@
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /test_bench/DUT/APB_INTERFACE
+=== Design Unit: work.apb_interface
+=================================================================================
+Expression Coverage:
+    Enabled Coverage              Bins   Covered    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Expressions                      9         7         2    77.77%
+
+================================Expression Details================================
+
+Expression Coverage for instance /test_bench/DUT/APB_INTERFACE --
+
+  File ../rtl/apb_interface.v
+
+----------------Focused Expression View-----------------
+Line       17 Item    1  (((psel & pwrite) & penable) & addr_valid)
+Expression totals: 3 of 4 input terms covered = 75.00%
+
+  Input Term   Covered  Reason for no coverage   Hint
+ -----------  --------  -----------------------  --------------
+        psel         N  '_0' not hit             Hit '_0'
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:    ***0***  psel_0                (addr_valid && penable && pwrite)
+  Row   2:          5  psel_1                (addr_valid && penable && pwrite)
+  Row   3:          5  pwrite_0              (addr_valid && penable && psel)
+  Row   4:          5  pwrite_1              (addr_valid && penable && psel)
+  Row   5:          5  penable_0             (addr_valid && (psel & pwrite))
+  Row   6:          5  penable_1             (addr_valid && (psel & pwrite))
+  Row   7:          1  addr_valid_0          ((psel & pwrite) & penable)   
+  Row   8:          5  addr_valid_1          ((psel & pwrite) & penable)   
+
+----------------Focused Expression View-----------------
+Line       18 Item    1  (((~pwrite & psel) & penable) & addr_valid)
+Expression totals: 3 of 4 input terms covered = 75.00%
+
+  Input Term   Covered  Reason for no coverage   Hint
+ -----------  --------  -----------------------  --------------
+        psel         N  '_0' not hit             Hit '_0'
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:          5  pwrite_0              (addr_valid && penable && psel)
+  Row   2:          5  pwrite_1              (addr_valid && penable && psel)
+  Row   3:    ***0***  psel_0                (addr_valid && penable && ~pwrite)
+  Row   4:          5  psel_1                (addr_valid && penable && ~pwrite)
+  Row   5:          5  penable_0             (addr_valid && (~pwrite & psel))
+  Row   6:          5  penable_1             (addr_valid && (~pwrite & psel))
+  Row   7:          1  addr_valid_0          ((~pwrite & psel) & penable)  
+  Row   8:          5  addr_valid_1          ((~pwrite & psel) & penable)  
+
+
+
+=================================================================================
+=== Instance: /test_bench/DUT/REG_SET
+=== Design Unit: work.register
+=================================================================================
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                        724       486       238    67.12%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /test_bench/DUT/REG_SET --
+
+                                              Node      1H->0L      0L->1H  "Coverage"
+                                              ---------------------------------------
+                                     compare_match           3           3      100.00 
+                                        div_val_en           5           5      100.00 
+                                      rdata_reg[0]           4           4      100.00 
+                                      rdata_reg[1]           5           5      100.00 
+                                      rdata_reg[2]           4           4      100.00 
+                                      rdata_reg[3]           5           5      100.00 
+                                      rdata_reg[4]           3           3      100.00 
+                                      rdata_reg[5]           4           4      100.00 
+                                    rdata_reg[6-7]           3           3      100.00 
+                                      rdata_reg[8]           5           5      100.00 
+                                      rdata_reg[9]           4           4      100.00 
+                                  rdata_reg[10-11]           5           5      100.00 
+                                  rdata_reg[12-13]           3           3      100.00 
+                                     rdata_reg[14]           4           4      100.00 
+                                     rdata_reg[15]           3           3      100.00 
+                                     rdata_reg[16]           4           4      100.00 
+                                     rdata_reg[17]           3           3      100.00 
+                                  rdata_reg[18-20]           4           4      100.00 
+                                  rdata_reg[21-22]           3           3      100.00 
+                                     rdata_reg[23]           4           4      100.00 
+                                     rdata_reg[24]           3           3      100.00 
+                                  rdata_reg[25-26]           4           4      100.00 
+                                     rdata_reg[27]           3           3      100.00 
+                                  rdata_reg[28-29]           4           4      100.00 
+                                  rdata_reg[30-31]           3           3      100.00 
+                                      sel_reg[0-1]           5           5      100.00 
+                                        sel_reg[2]           4           4      100.00 
+                                      sel_reg[3-6]           2           2      100.00 
+                                        sel_reg[7]           1           1      100.00 
+                                      tcmp0_reg[0]           1           1      100.00 
+                                    tcmp0_reg[1-2]           2           1      100.00 
+                                   tcmp0_reg[3-31]           1           1      100.00 
+                                   tcmp1_reg[0-31]           1           1      100.00 
+                                        tcr_reg[0]           3           4      100.00 
+                                        tcr_reg[1]           1           1      100.00 
+                                      tcr_reg[2-7]           0           0        0.00 
+                                        tcr_reg[8]           4           2      100.00 
+                                     tcr_reg[9-11]           1           1      100.00 
+                                    tcr_reg[12-31]           0           0        0.00 
+                                     tdr0_reg[0-3]           5           5      100.00 
+                                     tdr0_reg[4-7]           3           3      100.00 
+                                    tdr0_reg[8-11]           5           5      100.00 
+                                   tdr0_reg[12-31]           3           3      100.00 
+                                    tdr0_temp[0-3]           5           5      100.00 
+                                    tdr0_temp[4-7]           3           3      100.00 
+                                   tdr0_temp[8-11]           5           5      100.00 
+                                  tdr0_temp[12-31]           3           3      100.00 
+                                     tdr1_reg[0-3]           2           2      100.00 
+                                     tdr1_reg[4-7]           3           3      100.00 
+                                    tdr1_reg[8-11]           2           2      100.00 
+                                   tdr1_reg[12-15]           3           3      100.00 
+                                   tdr1_reg[16-31]           2           2      100.00 
+                                    tdr1_temp[0-3]           2           2      100.00 
+                                    tdr1_temp[4-7]           3           3      100.00 
+                                   tdr1_temp[8-11]           2           2      100.00 
+                                  tdr1_temp[12-15]           3           3      100.00 
+                                  tdr1_temp[16-31]           2           2      100.00 
+                                      thcsr_reg[0]           1           1      100.00 
+                                   thcsr_reg[1-31]           0           0        0.00 
+                                       tier_reg[0]           2           2      100.00 
+                                    tier_reg[1-31]           0           0        0.00 
+                                       tisr_reg[0]           2           3      100.00 
+                                    tisr_reg[1-31]           0           0        0.00 
+
+Total Node Count     =        362 
+Toggled Node Count   =        243 
+Untoggled Node Count =        119 
+
+Toggle Coverage      =      67.12% (486 of 724 bins)
+
+=================================================================================
+=== Instance: /test_bench/DUT/COUNTER_CONTROL
+=== Design Unit: work.counter_control
+=================================================================================
+Branch Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        18        17         1    94.44%
+
+================================Branch Details================================
+
+Branch Coverage for instance /test_bench/DUT/COUNTER_CONTROL
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File ../rtl/counter_control.v
+------------------------------------CASE Branch------------------------------------
+    29              1                    ***0***     				default: limit = limit;
+Branch totals: 9 hits of 10 branches = 90.00%
+
+
+Statement Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Statements                      20        19         1    95.00%
+
+================================Statement Details================================
+
+Statement Coverage for instance /test_bench/DUT/COUNTER_CONTROL --
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File ../rtl/counter_control.v
+    29              1     				default: limit = limit;
+
+=================================================================================
+=== Instance: /test_bench/DUT
+=== Design Unit: work.timer_top
+=================================================================================
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                        186       168        18    90.32%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /test_bench/DUT --
+
+                                              Node      1H->0L      0L->1H  "Coverage"
+                                              ---------------------------------------
+                                      address[0-1]           1           1      100.00 
+                                        address[2]           5           5      100.00 
+                                        address[3]           4           4      100.00 
+                                        address[4]           3           3      100.00 
+                                        address[5]           1           1      100.00 
+                                        address[6]           0           0        0.00 
+                                        address[7]           1           1      100.00 
+                                     address[8-11]           0           0        0.00 
+                                    count2reg[0-3]           5           5      100.00 
+                                    count2reg[4-7]           3           3      100.00 
+                                   count2reg[8-11]           5           5      100.00 
+                                  count2reg[12-31]           3           3      100.00 
+                                  count2reg[32-35]           2           2      100.00 
+                                  count2reg[36-39]           3           3      100.00 
+                                  count2reg[40-43]           2           2      100.00 
+                                  count2reg[44-47]           3           3      100.00 
+                                  count2reg[48-63]           2           2      100.00 
+                                          count_en           3           4      100.00 
+                                            div_en           1           1      100.00 
+                                        div_val[0]           4           2      100.00 
+                                      div_val[1-3]           1           1      100.00 
+                                            int_en           2           2      100.00 
+                                            int_st           2           3      100.00 
+                                             rd_en           5           5      100.00 
+                                       tdr0_wr_sel           5           5      100.00 
+                                       tdr1_wr_sel           4           4      100.00 
+                                    tim_pstrb[0-3]           0           0        0.00 
+                                          timer_en           3           4      100.00 
+                                             wr_en           5           5      100.00 
+
+Total Node Count     =         93 
+Toggled Node Count   =         84 
+Untoggled Node Count =          9 
+
+Toggle Coverage      =      90.32% (168 of 186 bins)
+
+=================================================================================
+=== Instance: /test_bench
+=== Design Unit: work.test_bench
+=================================================================================
+Branch Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        21        13         8    61.90%
+
+================================Branch Details================================
+
+Branch Coverage for instance /test_bench
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File ../tb/test_bench.v
+------------------------------------IF Branch------------------------------------
+    80                                         1     Count coming in to IF
+    80              1                    ***0***     		if (error != 0) begin
+    84              1                          1     		end else begin
+Branch totals: 1 hit of 2 branches = 50.00%
+
+------------------------------------IF Branch------------------------------------
+    157                                       45     Count coming in to IF
+    157             1                         45     		if ( (actual_data & mask) == (expected_data & mask) ) begin
+    161             1                    ***0***     		end else begin
+Branch totals: 1 hit of 2 branches = 50.00%
+
+------------------------------------IF Branch------------------------------------
+    217                                       11     Count coming in to IF
+    217             1                         11     		if (timer_en) begin
+    241             1                    ***0***     		end else begin
+Branch totals: 1 hit of 2 branches = 50.00%
+
+------------------------------------IF Branch------------------------------------
+    219                                        9     Count coming in to IF
+    219             1                          1     				if (div_val == 4'b0) begin
+    222             1                    ***0***     				end else if (div_val > 4'b1000) begin
+    225             1                          8     				end else begin
+Branch totals: 2 hits of 3 branches = 66.66%
+
+------------------------------------IF Branch------------------------------------
+    234                                       11     Count coming in to IF
+    234             1                    ***0***     			if (expected_count == 64'h0) begin
+    237             1                         11     			end else begin 
+Branch totals: 1 hit of 2 branches = 50.00%
+
+------------------------------------IF Branch------------------------------------
+    275                                        1     Count coming in to IF
+    275             1                    ***0***     			if (start_count > int_cmp) begin
+    277             1                          1     			end else begin
+Branch totals: 1 hit of 2 branches = 50.00%
+
+
+  File run_test.v
+------------------------------------IF Branch------------------------------------
+    26                                         1     Count coming in to IF
+    26              1                    ***0***     //		int_cmp 	= $urandom_range(64'h0000000000000000, 64'h000000000000FFFF);
+    28              1                          1     		start_count     = 64'hFFFF_FFFF_FFFF_FFF0;
+Branch totals: 1 hit of 2 branches = 50.00%
+
+------------------------------------IF Branch------------------------------------
+    57                                         1     Count coming in to IF
+    57              1                    ***0***     		$display("=============================================");
+    60              1                          1     	
+Branch totals: 1 hit of 2 branches = 50.00%
+
+
+Condition Coverage:
+    Enabled Coverage              Bins   Covered    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Conditions                       8         1         7    12.50%
+
+================================Condition Details================================
+
+Condition Coverage for instance /test_bench --
+
+  File ../tb/test_bench.v
+----------------Focused Condition View-------------------
+Line       80 Item    1  (error != 0)
+Condition totals: 0 of 1 input term covered = 0.00%
+
+    Input Term   Covered  Reason for no coverage   Hint
+   -----------  --------  -----------------------  --------------
+  (error != 0)         N  '_1' not hit             Hit '_1'
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:          1  (error != 0)_0        -                             
+  Row   2:    ***0***  (error != 0)_1        -                             
+
+----------------Focused Condition View-------------------
+Line       157 Item    1  ((actual_data & mask) == (expected_data & mask))
+Condition totals: 0 of 1 input term covered = 0.00%
+
+                                        Input Term   Covered  Reason for no coverage   Hint
+                                       -----------  --------  -----------------------  --------------
+  ((actual_data & mask) == (expected_data & mask))         N  '_0' not hit             Hit '_0'
+
+     Rows:       Hits  FEC Target                                          Non-masking condition(s)      
+ ---------  ---------  --------------------                                -------------------------     
+  Row   1:    ***0***  ((actual_data & mask) == (expected_data & mask))_0  -                             
+  Row   2:          5  ((actual_data & mask) == (expected_data & mask))_1  -                             
+
+
+----------------Focused Condition View-------------------
+Line       222 Item    1  (div_val > 8)
+Condition totals: 0 of 1 input term covered = 0.00%
+
+     Input Term   Covered  Reason for no coverage   Hint
+    -----------  --------  -----------------------  --------------
+  (div_val > 8)         N  '_1' not hit             Hit '_1'
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:          1  (div_val > 8)_0       -                             
+  Row   2:    ***0***  (div_val > 8)_1       -                             
+
+----------------Focused Condition View-------------------
+Line       234 Item    1  (expected_count == 'h0000000000000000)
+Condition totals: 0 of 1 input term covered = 0.00%
+
+                              Input Term   Covered  Reason for no coverage   Hint
+                             -----------  --------  -----------------------  --------------
+  (expected_count == 'h0000000000000000)         N  '_1' not hit             Hit '_1'
+
+     Rows:       Hits  FEC Target                                Non-masking condition(s)      
+ ---------  ---------  --------------------                      -------------------------     
+  Row   1:          2  (expected_count == 'h0000000000000000)_0  -                             
+  Row   2:    ***0***  (expected_count == 'h0000000000000000)_1  -                             
+
+----------------Focused Condition View-------------------
+Line       275 Item    1  (start_count > int_cmp)
+Condition totals: 0 of 1 input term covered = 0.00%
+
+               Input Term   Covered  Reason for no coverage   Hint
+              -----------  --------  -----------------------  --------------
+  (start_count > int_cmp)         N  '_1' not hit             Hit '_1'
+
+     Rows:       Hits  FEC Target                 Non-masking condition(s)      
+ ---------  ---------  --------------------       -------------------------     
+  Row   1:          1  (start_count > int_cmp)_0  -                             
+  Row   2:    ***0***  (start_count > int_cmp)_1  -                             
+
+
+----------------Focused Condition View-------------------
+Line       26 Item    1  (choice == 0)
+Condition totals: 0 of 1 input term covered = 0.00%
+
+     Input Term   Covered  Reason for no coverage   Hint
+    -----------  --------  -----------------------  --------------
+  (choice == 0)         N  '_1' not hit             Hit '_1'
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:          1  (choice == 0)_0       -                             
+  Row   2:    ***0***  (choice == 0)_1       -                             
+
+----------------Focused Condition View-------------------
+Line       57 Item    1  (expected !== actual)
+Condition totals: 0 of 1 input term covered = 0.00%
+
+             Input Term   Covered  Reason for no coverage   Hint
+            -----------  --------  -----------------------  --------------
+  (expected !== actual)         N  '_1' not hit             Hit '_1'
+
+     Rows:       Hits  FEC Target               Non-masking condition(s)      
+ ---------  ---------  --------------------     -------------------------     
+  Row   1:          1  (expected !== actual)_0  -                             
+  Row   2:    ***0***  (expected !== actual)_1  -                             
+
+
+Statement Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Statements                     230       216        14    93.91%
+
+================================Statement Details================================
+
+Statement Coverage for instance /test_bench --
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File ../tb/test_bench.v
+    81              1     			$display("==========================================================");
+    82              1     			$display("--------------------- TEST FAILED!! ----------------------");
+    83              1     			$display("==========================================================");
+    162             1     			$display("====================================");
+    163             1     			$display("At [t=%10d] - [FAIL] Expected: 0x%h, Got: 0x%h", $time, expected_data & mask, actual_data & mask);
+    164             1     			$display("====================================");
+    165             1     			error = error + 1;
+    223             1     					div_factor = div_factor;
+    224             1     					$display("Div val prohibit detected, div_val does not change.");
+    235             1     				$display("Counter overflow");
+    236             1     				expected_count = start_count + (elapsed_cycles / div_factor);
+    242             1     			expected_count = expected_count;
+    243             1     			$display("Counter disable");
+    276             1     				test_cycles = ((64'hFFFFFFFFFFFFFFFF - start_count + 64'h1) + int_cmp )*(1 << div_val);
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                        278       177       101    63.66%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /test_bench --
+
+                                              Node      1H->0L      0L->1H  "Coverage"
+                                              ---------------------------------------
+                                               clk           5           5      100.00 
+                                          dbg_mode           0           0        0.00 
+                                          error[0]           5           0       50.00 
+                                       error[1-31]           0           0        0.00 
+                                        paddr[0-1]           1           1      100.00 
+                                          paddr[2]           5           5      100.00 
+                                          paddr[3]           4           4      100.00 
+                                          paddr[4]           3           3      100.00 
+                                          paddr[5]           1           1      100.00 
+                                          paddr[6]           0           0        0.00 
+                                          paddr[7]           1           1      100.00 
+                                       paddr[8-11]           0           0        0.00 
+                                         paddr[12]           5           5      100.00 
+                                         paddr[13]           1           1      100.00 
+                                      paddr[14-15]           0           0        0.00 
+                                      paddr[16-17]           1           1      100.00 
+                                      paddr[18-19]           0           0        0.00 
+                                         paddr[20]           1           1      100.00 
+                                         paddr[21]           0           0        0.00 
+                                         paddr[22]           1           1      100.00 
+                                      paddr[23-24]           0           0        0.00 
+                                      paddr[25-27]           1           1      100.00 
+                                         paddr[28]           0           0        0.00 
+                                         paddr[29]           1           1      100.00 
+                                         paddr[30]           5           5      100.00 
+                                         paddr[31]           0           0        0.00 
+                                           penable           5           5      100.00 
+                                         prdata[0]           4           4      100.00 
+                                         prdata[1]           5           5      100.00 
+                                         prdata[2]           4           4      100.00 
+                                         prdata[3]           5           5      100.00 
+                                         prdata[4]           3           3      100.00 
+                                         prdata[5]           4           4      100.00 
+                                       prdata[6-7]           3           3      100.00 
+                                         prdata[8]           5           5      100.00 
+                                         prdata[9]           4           4      100.00 
+                                     prdata[10-11]           5           5      100.00 
+                                     prdata[12-13]           3           3      100.00 
+                                        prdata[14]           4           4      100.00 
+                                        prdata[15]           3           3      100.00 
+                                        prdata[16]           4           4      100.00 
+                                        prdata[17]           3           3      100.00 
+                                     prdata[18-20]           4           4      100.00 
+                                     prdata[21-22]           3           3      100.00 
+                                        prdata[23]           4           4      100.00 
+                                        prdata[24]           3           3      100.00 
+                                     prdata[25-26]           4           4      100.00 
+                                        prdata[27]           3           3      100.00 
+                                     prdata[28-29]           4           4      100.00 
+                                     prdata[30-31]           3           3      100.00 
+                                              psel           5           5      100.00 
+                                       pwdata[0-3]           5           5      100.00 
+                                       pwdata[4-7]           4           4      100.00 
+                                      pwdata[8-12]           5           5      100.00 
+                                     pwdata[13-19]           4           4      100.00 
+                                        pwdata[20]           5           5      100.00 
+                                     pwdata[21-27]           4           4      100.00 
+                                        pwdata[28]           5           5      100.00 
+                                     pwdata[29-31]           4           4      100.00 
+                                            pwrite           5           5      100.00 
+                                             rst_n           2           5      100.00 
+                                           tim_int           2           2      100.00 
+                                    tim_pstrb[0-3]           0           0        0.00 
+
+Total Node Count     =        139 
+Toggled Node Count   =         88 
+Untoggled Node Count =         51 
+
+Toggle Coverage      =      63.66% (177 of 278 bins)
+
+
+Total Coverage By Instance (filtered view): 66.23%
+

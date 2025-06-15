@@ -1,0 +1,66 @@
+# vsim -coverage -l apb_interface.log -c test_bench -voptargs="+cover=bcesft" -assertdebug -do "coverage save -onexit apb_interface.ucdb; log -r /*;run -all" 
+# Start time: 09:22:21 on Jun 07,2025
+# ** Note: (vsim-3812) Design is being optimized...
+# //  Questa Intel Starter FPGA Edition-64
+# //  Version 2023.3 linux_x86_64 Jul 17 2023
+# //
+# //  Copyright 1991-2023 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.test_bench(fast)
+# coverage save -onexit apb_interface.ucdb
+#  log -r /*
+# run -all
+# =============================================
+# ---------- TEST A1: APB WRITE/READ ----------
+# =============================================
+# ====================================
+# [33000] WRITE: Addr = 0x40001004, Data = 0x00000f0f
+# ====================================
+# ====================================
+# [49000] READ: Addr = 0x40001004, Data = 0x00000f0f
+# ====================================
+# ====================================
+# At [t=        50] - [PASS] Expected: 0x00000f0f, Got: 0x00000f0f
+# ====================================
+# =============================================
+# ---- TEST A2: WRITE TO INVALID ADDRESSES ----
+# =============================================
+# ====================================
+# [63000] WRITE: Addr = 0x6e533097, Data = 0x10101001
+# ====================================
+# ====================================
+# [79000] READ: Addr = 0x6e533097, Data = 0x00000000
+# ====================================
+# ====================================
+# At [t=        80] - [PASS] Expected: 0x00000000, Got: 0x00000000
+# ====================================
+# ===================================================
+# ---- TEST A3: WRITE TO NON-DEFINED ADDRESSES ------
+# ===================================================
+# ====================================
+# [103000] WRITE: Addr = 0x40001020, Data = 0x0000000f
+# ====================================
+# ====================================
+# [119000] READ: Addr = 0x40001020, Data = 0x00000000
+# ====================================
+# ====================================
+# At [t=       120] - [PASS] Expected: 0x00000000, Got: 0x00000000
+# ====================================
+# The number of Error:           0:
+# ==========================================================
+# --------------------- TEST SUCCESS! ----------------------
+# ==========================================================
+# ** Note: $finish    : ../tb/test_bench.v(90)
+#    Time: 120500 ps  Iteration: 0  Instance: /test_bench
+# Saving coverage database on exit...
+# End time: 09:22:22 on Jun 07,2025, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
