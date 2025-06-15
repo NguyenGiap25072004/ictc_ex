@@ -7,22 +7,27 @@ module apb_interface (
 	input wire [31:0] 	paddr,
 	// Output to APB Master
 	output wire		pslverr, pready,
+	// Decoded signals for internal blocks
 	output wire [11:0]	addr,
 	output wire 		wr_en, rd_en
 );
 
-	// Base address check to validate the access
-	wire 		addr_valid = (paddr[31:12] == 20'h40001);
+	// The IP is considered selected only when the base address matches.
+	wire is_addr_valid = (paddr[31:12] == 20'h40001);
 
-	// Generate internal read/write strobes from APB signals
-	assign		wr_en	= psel & pwrite  & penable & addr_valid;
-	assign		rd_en	= psel & ~pwrite & penable & addr_valid;
+	// Generate a single-cycle write strobe for the register block.
+	assign wr_en = psel && pwrite && penable && is_addr_valid;
+	
+	// Generate a single-cycle read strobe for the register block.
+	assign rd_en = psel && !pwrite && penable && is_addr_valid;
+	
+	// Provide the lower 12 bits of the address to the register block.
+	assign addr = paddr[11:0];
 
-	// Extract the 12-bit offset address for internal use
-	assign 		addr	= paddr[11:0];
-
-	// Implement simplified APB response (no wait, no error)
-	assign 		pready 	= 1'b1;
-	assign 		pslverr	= 1'b0;
+	// This timer IP does not have wait states.
+	assign pready = 1'b1;
+	
+	// This timer IP does not generate slave errors.
+	assign pslverr = 1'b0;
 
 endmodule
