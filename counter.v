@@ -1,42 +1,42 @@
-module timer_counter_standard (
-    input wire        clk,
-    input wire        rst_n,
-
-    input wire        timer_en_i,            // From register (TCR.timer_en) 
-    input wire        count_pulse_en_i,      // From counter_control
-
-    // APB TDR write signals (from register)
-    input wire        load_tdr0_pulse_i,     // Single cycle pulse to load cnt_val_out[31:0]
-    input wire        load_tdr1_pulse_i,     // Single cycle pulse to load cnt_val_out[63:32]
-    input wire [31:0] tdr_load_data_i,       // Data from APB (via register) to load into TDR
-
-    // Compare value (from register, composed from TCMP0 & TCMP1 regs)
-    input wire [63:0] tcmp_val_i,
-
-    // Counter output and compare match output
-    output reg [63:0] cnt_val_out,           // Current 64-bit counter value
-    output wire       cmp_match_out          // Output to interrupt
+module counter (
+	// System
+	input wire 		clk,
+	input wire 		rst_n,
+	// Input signals
+	input wire		count_en,
+	input wire 		tdr0_wr_sel,
+	input wire 		tdr1_wr_sel,
+	input wire [31:0]	wdata,
+	// Output signals
+	output wire [63:0] 	count_val
 );
 
-// Compare Match Logic
-assign cmp_match_out = (cnt_val_out == tcmp_val_i);
+	// Internal 64-bit counter register
+	reg [63:0] 	count_reg;
 
-// Counter Implementation: 64-bit count-up register
+	// Counter logic: handles reset, software writes, and counting
+	always @(posedge clk or negedge rst_n) begin
+		if (!rst_n) begin
+			count_reg <= 64'd0;
+		end
+		// Priority: Software write has higher priority than counting
+		else if (tdr0_wr_sel) begin
+			count_reg[31:0] <= wdata;
+		end
+		else if (tdr1_wr_sel) begin
+			count_reg[63:32] <= wdata;
+		end
+		// If enabled, perform counting
+		else if (count_en) begin
+			// Check for overflow and wrap around
+			if (count_reg == 64'hFFFF_FFFF_FFFF_FFFF)
+				count_reg <= 64'd0;
+			else
+				count_reg <= count_reg + 1;
+		end
+	end
 
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        cnt_val_out <= 64'd0; 
-    end else begin
-        // Priority: TDR Load > Counting
-        if (load_tdr0_pulse_i) begin
-            cnt_val_out[31:0] <= tdr_load_data_i; // Load lower 32 bits from APB wdata
-        end else if (load_tdr1_pulse_i) begin
-            cnt_val_out[63:32] <= tdr_load_data_i; // Load upper 32 bits from APB wdata
-        end else if (timer_en_i && count_pulse_en_i) begin
-            cnt_val_out <= cnt_val_out + 1;       // Increment counter
-        end
-
-    end
-end
+	// Assign internal register to output
+	assign count_val = count_reg;
 
 endmodule
