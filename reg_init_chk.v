@@ -1,8 +1,7 @@
 task run_test();
-begin // <--- THÊM BEGIN
     reg [31:0] read_val;
+begin
     $display("\n\n--- Starting Test: Register Initial (Reset) Values ---");
-
     timer_reg_read(TCR_OFFSET,   read_val);
     check_value(read_val, 32'h0000_0100, "Check TCR reset value");
     timer_reg_read(TDR0_OFFSET,  read_val);
@@ -19,8 +18,7 @@ begin // <--- THÊM BEGIN
     check_value(read_val, 32'h0, "Check TISR reset value");
     timer_reg_read(THCSR_OFFSET, read_val);
     check_value(read_val, 32'h0, "Check THCSR reset value");
-
     if (g_error_count == 0) $display("--- TEST PASSED ---");
     else $display("--- TEST FAILED ---");
-end // <--- THÊM END
+end
 endtask
