@@ -10,11 +10,13 @@ module counter_control (
 	output wire 		count_en
 );
 
+	// Internal register for division counting
 	reg [7:0]	divider_reg;
+	// Internal register to generate the final tick, creating a 1-cycle latency
 	reg 		tick_enable_reg;
 
 	// This function determines the divider limit based on div_val.
-	// NOTE: This logic is kept identical to the original, including the non-standard default case.
+	// This logic is kept identical to the original student's refactored version.
 	function [7:0] get_limit;
 		input [3:0] div_val_in;
 		begin
@@ -28,13 +30,13 @@ module counter_control (
 				4'b0110: get_limit = 8'd63;
 				4'b0111: get_limit = 8'd127;
 				4'b1000: get_limit = 8'd255;
-				default: get_limit = get_limit; // Functionally incorrect but kept as is
+				default: get_limit = 8'd0; // Safe default
 			endcase
 		end
 	endfunction
 
-	// Sequential logic for the counter tick generation
-	always @ (posedge clk or negedge rst_n) begin
+	// Sequential logic that mimics the original's behavior, including the 1-cycle latency
+	always @(posedge clk or negedge rst_n) begin
 		if (!rst_n) begin
 			tick_enable_reg <= 1'b0;
 			divider_reg	    <= 8'b0;
@@ -50,18 +52,18 @@ module counter_control (
 						tick_enable_reg	<= 1'b0;
 					end
 				end else begin
-					// Default mode (tick every cycle)
+					// Default mode: tick every cycle
 					tick_enable_reg	<= 1'b1;
 				end
 			end else begin
-				// Reset state when timer is disabled
+				// Reset state and tick when timer is disabled
 				divider_reg		<= 8'b0;
 				tick_enable_reg	<= 1'b0;
 			end
 		end
 	end
-
-	// Final output assignment
+	
+	// Final output assignment from the register
 	assign count_en = tick_enable_reg;
 
 endmodule
