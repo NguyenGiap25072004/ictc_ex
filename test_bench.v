@@ -11,8 +11,9 @@ module test_bench;
     parameter TISR_OFFSET  = 12'h18;
     parameter THCSR_OFFSET = 12'h1C;
 
-    // Timing parameter
-    parameter CLK_PERIOD = 50; // Corresponds to 20MHz clock with 1ns timescale
+    // Timing and Message Width Parameters
+    parameter CLK_PERIOD      = 50; // Corresponds to 20MHz clock with 1ns timescale
+    parameter MAX_MSG_LENGTH  = 128; // Max characters for display messages
 
     // DUT Interface signals
     reg  clk, rst_n;
@@ -148,7 +149,8 @@ module test_bench;
     task check_value;
         input [31:0] actual_data;
         input [31:0] expected_data;
-        input string message;
+        // *** SỬA LỖI: THAY THẾ 'string' BẰNG MẢNG 'reg' ĐỂ TƯƠNG THÍCH VERILOG ***
+        input [(MAX_MSG_LENGTH*8)-1:0] message; 
         begin
             if (actual_data !== expected_data) begin
                 $display("**************************************************");
