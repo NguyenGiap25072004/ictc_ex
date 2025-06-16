@@ -1,4 +1,5 @@
 task run_test();
+begin // <--- THÊM BEGIN
     reg [31:0] read_val;
     $display("\n\n--- Starting Test: General Register Read/Write Access ---");
 
@@ -13,7 +14,6 @@ task run_test();
     check_value(read_val, 32'h0000_0001, "Check R/W for TIER");
 
     $display("[SCENARIO] Testing TISR Write-1-to-Clear");
-    // Manually set TISR by forcing a compare match
     timer_reg_write(TDR0_OFFSET, 99);
     timer_reg_write(TDR1_OFFSET, 0);
     timer_reg_write(TCMP0_OFFSET, 100);
@@ -24,11 +24,11 @@ task run_test();
     timer_reg_read(TISR_OFFSET, read_val);
     check_value(read_val, 1, "Check TISR is set by hardware");
     
-    // Now, clear it
     timer_reg_write(TISR_OFFSET, 1);
     timer_reg_read(TISR_OFFSET, read_val);
     check_value(read_val, 0, "Check TISR is cleared by software");
 
     if (g_error_count == 0) $display("--- TEST PASSED ---");
     else $display("--- TEST FAILED ---");
+end // <--- THÊM END
 endtask
