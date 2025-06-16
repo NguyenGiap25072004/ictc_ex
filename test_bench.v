@@ -147,16 +147,15 @@ module test_bench;
 
     // Task to compare read data with expected data
     task check_value;
-        input [31:0] actual_data;
-        input [31:0] expected_data;
-        // *** SỬA LỖI: THAY THẾ 'string' BẰNG MẢNG 'reg' ĐỂ TƯƠNG THÍCH VERILOG ***
-        input [(MAX_MSG_LENGTH*8)-1:0] message; 
+        input [63:0] actual_data;
+        input [63:0] expected_data;
+        input [(MAX_MSG_LENGTH*8)-1:0] message;
         begin
             if (actual_data !== expected_data) begin
                 $display("**************************************************");
                 $display("[CHECK FAILED] @ %0t : %s", $time, message);
-                $display("    -> Expected = 0x%0h", expected_data);
-                $display("    -> Actual   = 0x%0h", actual_data);
+                $display("    -> Expected = 0x%0h (%0d)", expected_data, expected_data);
+                $display("    -> Actual   = 0x%0h (%0d)", actual_data, actual_data);
                 $display("**************************************************");
                 g_error_count = g_error_count + 1;
             end else begin
